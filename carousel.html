@@ -56,6 +56,13 @@ div:target {
 	margin-bottom: .5ex;
 	color: #828282;
 }
+
+.empty {
+	height: 100%;
+	color: #828282;
+	padding-top: 7em;
+	text-align: center;
+}
 </style>
 
 <body lang="en-US">
@@ -134,6 +141,12 @@ let xhr = new XMLHttpRequest();
 xhr.addEventListener('load', function() {
 	let data = JSON.parse(this.responseText);
 	document.body.appendChild(render(data));
+
+	// add one screen worth of emptiness to preserve scrolling position when content is going to shrink vertically
+	let empty = document.createElement('div');
+	empty.className = 'empty';
+	empty.innerHTML = 'This page is intentionally left blank.';
+	document.body.appendChild(empty)
 });
 xhr.open('GET', 'comments.json');
 xhr.send();
