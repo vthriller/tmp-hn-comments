@@ -106,9 +106,9 @@ function render(data, prev, next) {
 	if(data.kids)
 		for(let i=0; i<data.kids.length; i++) {
 			let child = render(
-				data.kids[i], 
-				(data.kids[i-1] || {}).id, 
-				(data.kids[i+1] || {}).id, 
+				data.kids[i],
+				(data.kids[i-1] || {}).id,
+				(data.kids[i+1] || {}).id,
 			);
 			if(i != 0) {
 				child.style.display = 'none';
