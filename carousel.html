@@ -1,0 +1,133 @@
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+* {
+	box-sizing: border-box;
+}
+body {
+	background-color: #fff;
+	/* font-family: sans-serif; */
+}
+.post {
+	border-top: 1px solid #999;
+	padding-top: .5ex;
+	margin-top: .5ex;
+
+	clear: right;
+}
+.prev, .next {
+	width: 1ex;
+}
+.next[disabled] {
+	visibility: hidden;
+}
+.prev[disabled],
+.prev[disabled] + .next[disabled] {
+	display: none;
+}
+
+.nav {
+	float: right;
+}
+
+@media (pointer: coarse) {
+	.next, .prev {
+		min-width: 1.75cm;
+		min-height: 1cm;
+	}
+}
+
+div:target {
+	border: 2px dotted #f00;
+}
+
+.content {
+	overflow-x: auto;
+}
+
+.meta {
+	font-size: small;
+	border-bottom: 1px dashed #aaa;
+	margin-bottom: .5ex;
+}
+</style>
+
+<body>
+</body>
+
+<script>
+function render(data, prev, next) {
+	let div = document.createElement('div');
+	div.id = data.id;
+	div.className = 'post';
+
+	let prevBtn = document.createElement('button');
+	prevBtn.className = 'prev';
+	prevBtn.innerHTML = '←';
+	if(prev) {
+		prevBtn.onclick = function() {
+			div.style.display = 'none';
+			document.getElementById(prev).style.display = null;
+		};
+	} else {
+		prevBtn.disabled = true;
+	}
+
+	let nav = document.createElement('div');
+	nav.className = 'nav';
+
+	let nextBtn = document.createElement('button');
+	nextBtn.className = 'next';
+	nextBtn.innerHTML = '→';
+	if(next) {
+		nextBtn.onclick = function() {
+			div.style.display = 'none';
+			document.getElementById(next).style.display = null;
+		};
+	} else {
+		nextBtn.disabled = true;
+	}
+
+	let content = document.createElement('div');
+	content.className = 'content';
+	if(data.url) {
+		content.innerHTML = `<a>${data.title}</a>`;
+		content.querySelector('a').href = data.url;
+	} else if (data.deleted) {
+		content.innerHTML = `<s><i>deleted</i></s>`;
+	} else {
+		content.innerHTML = `<div class="meta">by ${data.by} @ ${data.time}</div> ${data.text}`;
+	}
+
+	nav.appendChild(prevBtn);
+	nav.appendChild(nextBtn);
+
+	let children = document.createElement('div');
+	children.className = 'children';
+	if(data.kids)
+		for(let i=0; i<data.kids.length; i++) {
+			let child = render(
+				data.kids[i], 
+				(data.kids[i-1] || {}).id, 
+				(data.kids[i+1] || {}).id, 
+			);
+			if(i != 0) {
+				child.style.display = 'none';
+			}
+			children.appendChild(child);
+		}
+
+	content.insertBefore(nav, content.children[0]);
+	div.appendChild(content);
+	div.appendChild(children);
+
+	return div;
+}
+
+let xhr = new XMLHttpRequest();
+xhr.addEventListener('load', function() {
+	let data = JSON.parse(this.responseText);
+	document.body.appendChild(render(data));
+});
+xhr.open('GET', 'comments.json');
+xhr.send();
+</script>
